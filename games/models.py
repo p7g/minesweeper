@@ -26,8 +26,17 @@ class Grid(models.Model):
             ) | Q( # diagonally adjacent
                 x__in=(square.x+1, square.x-1),
                 y__in=(square.y+1, square.y-1),
-            )) & Q(**kwargs),
+            )) & Q(**kwargs)
         )
+
+    def get_all_2d(self):
+        squares = self.square_set.all()
+        grid = [[None for x in range(self.width)] for y in range(self.height)]
+        for square in squares:
+            x = square.x
+            y = square.y
+            grid[y][x] = square
+        return grid
 
     def public_data(self):
         """
@@ -49,21 +58,12 @@ class Square(models.Model):
     has_mine = models.BooleanField()
     has_flag = models.BooleanField(default=False)
     is_revealed = models.BooleanField(default=False)
+    adjacent_mines = models.SmallIntegerField(default=0)
 
     grid = models.ForeignKey(Grid, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = (('x', 'y', 'grid'),)
-
-    def adjacent_mines(self):
-        """
-        Get the number of squares with mines adjacent to this one
-        """
-        adjacent_with_mine = self.grid.get_squares_adjacent_to(
-            self,
-            has_mine=True,
-        )
-        return len(adjacent_with_mine)
 
     def public_data(self):
         """
@@ -78,7 +78,8 @@ class Square(models.Model):
 
         # add adjacent_mines/has_flag only if relevant
         if self.is_revealed:
-            data['adjacent_mines'] = self.adjacent_mines()
+            data['has_mine'] = self.has_mine
+            data['adjacent_mines'] = self.adjacent_mines
         else:
             data['has_flag'] = self.has_flag
         return data
