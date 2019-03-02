@@ -5,7 +5,7 @@ import json
 import random
 
 from django.views import View
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 
 from .models import Game, Grid, Square
@@ -60,3 +60,84 @@ class GameView(View):
         """
         game = get_object_or_404(Game, pk=game_id)
         return JsonResponse(game.public_data())
+
+class SquareFlagView(View):
+    """
+    Class for views on /api/squares/<id>/flag
+    """
+
+    def post(self, request, square_id):
+        """
+        Add a flag to the square
+        """
+        square = get_object_or_404(Square, pk=square_id)
+        square.has_flag = True
+        square.save()
+        return HttpResponse()
+
+    def delete(self, request, square_id):
+        """
+        Remove the flag from a square
+        """
+        square = get_object_or_404(Square, pk=square_id)
+        square.has_flag = False
+        square.save()
+        return HttpResponse()
+
+class SquareRevealView(View):
+    """
+    Class for views on /api/squares/<id>/reveal
+    """
+
+    def post(self, request, square_id):
+        """
+        Reveal a square. Returns a result object, which is either success with
+        the revealed squares and game status, or failure (from a mine)
+        """
+        square = get_object_or_404(Square, pk=square_id)
+
+        result = ''
+        data = None
+        if square.has_mine:
+            result = 'fail'
+            square.is_revealed = True
+            square.save()
+
+            # end game
+            square.grid.game.status = 'L'
+            square.grid.game.save()
+        else:
+            result = 'success'
+            grid = square.grid
+            revealed = []
+            squares = [square]
+
+            while squares:
+                # get the next square from the list
+                current = squares.pop()
+
+                # for each of the squares which are adjacent,
+                # reveal if there is no mine, and recurse if no adjacent mines
+                for adjacent_square in grid.get_squares_adjacent_to(current):
+                    if not adjacent_square.has_mine:
+                        adjacent_square.is_revealed = True
+                        adjacent_square.save()
+                        revealed.append(adjacent_square.public_data())
+
+                    if adjacent_square.adjacent_mines() == 0:
+                        squares.append(adjacent_square)
+
+            # check if game is won (no unrevealed squares without mine)
+            if not grid.square_set.filter(has_mine=False, is_revealed=False):
+                grid.game.status = 'W'
+                grid.game.save()
+
+            data = {
+                'revealed': revealed,
+                'game_state': grid.game.state,
+            }
+
+        return JsonResponse({
+            'result': result,
+            'data': data,
+        })
