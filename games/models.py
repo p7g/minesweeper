@@ -13,6 +13,23 @@ class Grid(models.Model):
     width = models.PositiveIntegerField(default=20)
     height = models.PositiveIntegerField(default=20)
 
+    def get_squares_adjacent_to(self, square, **kwargs):
+        """
+        Get all squares adjacent to the one given
+        """
+        return self.square_set.filter(
+            (Q( # horizontally adjacent
+                x__in=(square.x+1, square.x-1),
+                y=square.y,
+            ) | Q( # vertically adjacent
+                y__in=(square.y+1, square.y-1),
+                x=square.x,
+            ) | Q( # diagonally adjacent
+                x__in=(square.x+1, square.x-1),
+                y__in=(square.y+1, square.y-1),
+            )) & Q(**kwargs),
+        )
+
     def public_data(self):
         """
         Get the fields that should be sent to the client
