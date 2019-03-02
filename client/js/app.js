@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
 import Layout from './layout';
-import Game from './pages/game.js';
+import Game from './pages/game';
 import NewGame from './pages/new-game';
 
 export default () => (
