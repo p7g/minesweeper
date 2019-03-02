@@ -83,7 +83,7 @@ class Game(models.Model):
 
     status = models.CharField(max_length=1, choices=STATUSES)
     difficulty = models.FloatField(help_text='Chance of each square to be a mine')
-    grid = models.ForeignKey(Grid, on_delete=models.CASCADE)
+    grid = models.OneToOneField(Grid, on_delete=models.CASCADE)
 
     def public_data(self):
         """
