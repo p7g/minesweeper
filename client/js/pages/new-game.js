@@ -9,7 +9,7 @@ const Button = styled.button`
 `;
 
 const Difficulty = {
-  EASY: 0.5,
+  EASY: 0.6,
   MEDIUM: 0.8,
   HARD: 1,
 };
