@@ -52,6 +52,19 @@ class Square(models.Model):
 
     grid = models.ForeignKey(Grid, on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = (('x', 'y', 'grid'),)
+
+    def adjacent_mines(self):
+        """
+        Get the number of squares with mines adjacent to this one
+        """
+        adjacent_with_mine = self.grid.get_squares_adjacent_to(
+            self,
+            has_mine=True,
+        )
+        return len(adjacent_with_mine)
+
     def public_data(self):
         """
         Get the fields that should be sent to the client
