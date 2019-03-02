@@ -143,7 +143,9 @@ class SquareRevealView(View):
                 for adjacent_row in grid[max(y-1, 0):min(y+2, square.grid.height)]:
                     for adjacent_square in adjacent_row[max(x-1, 0):min(x+2, square.grid.width)]:
                         seen = adjacent_square in seen_squares
-                        if not adjacent_square.has_mine and not seen:
+                        if (not adjacent_square.has_mine
+                            and not seen
+                            and not adjacent_square.has_flag):
                             adjacent_square.is_revealed = True
                             revealed.append(adjacent_square.public_data())
                             to_reveal.append(adjacent_square.id)
