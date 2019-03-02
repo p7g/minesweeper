@@ -20,5 +20,7 @@ module.exports = {
   ],
   rules: {
     'react/jsx-filename-extension': [0],
+    'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    'no-shadow': ['error', { allow: ['_'] }],
   },
 };
