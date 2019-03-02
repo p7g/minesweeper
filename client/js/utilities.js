@@ -26,8 +26,7 @@ export function getCookie(name) { // eslint-disable-line import/prefer-default-e
  * @returns {Object[][]}
  */
 export function to2D(squares, width, height) {
-  const grid = Array.from({ length: height })
-    .fill(Array.from({ length: width }));
+  const grid = Array.from({ length: height }, () => Array.from({ length: width }));
 
   squares.forEach((square) => {
     const { x, y } = square;

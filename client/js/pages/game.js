@@ -7,6 +7,7 @@ const csrfJsonHeaders = {
   'X-CSRFToken': getCookie('csrftoken'),
   'Content-Type': 'appication/json',
 };
+let renderCount = 0;
 
 export default function Game({ match }) {
   const { id } = match.params;
@@ -43,14 +44,17 @@ export default function Game({ match }) {
 
   async function flag(squareId, square) {
     const { x, y, has_flag } = square;
-  
+
     const response = await fetch(`/api/squares/${squareId}/flag`, {
       method: has_flag ? 'DELETE' : 'POST',
       headers: csrfJsonHeaders,
     });
 
-    squares[y][x].has_flag = !has_flag;
-    setSquares(squares);
+    setSquares((sqs) => {
+      const newSquares = Array.from(sqs);
+      newSquares[y][x].has_flag = !has_flag;
+      return newSquares;
+    });
   }
 
   useEffect(() => {
@@ -59,6 +63,7 @@ export default function Game({ match }) {
 
   return (
     <div>
+      <p>{++renderCount}</p>
       <h1>{loading && 'loading...'}</h1>
       {loading || (
         <Fragment>
