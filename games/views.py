@@ -38,7 +38,7 @@ def new_game(difficulty):
 # Create your views here.
 class GameIndexView(View):
     """
-    Class for views on /api/game/ for HTTP method dispatching
+    Class for views on /api/games/ for HTTP method dispatching
     """
 
     def post(self, request):
@@ -51,7 +51,7 @@ class GameIndexView(View):
 
 class GameView(View):
     """
-    Class for views on /api/game/<id> for HTTP method dispatching
+    Class for views on /api/games/<id> for HTTP method dispatching
     """
 
     def get(self, request, game_id):
