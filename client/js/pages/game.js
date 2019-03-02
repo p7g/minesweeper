@@ -1,4 +1,6 @@
+/* eslint-disable camelcase */
 import React, { useState, useEffect, Fragment } from 'react';
+import { Link } from 'react-router-dom';
 
 import Square from '../components/square';
 import { to2D, getCookie } from '../utilities';
@@ -7,12 +9,10 @@ const csrfJsonHeaders = {
   'X-CSRFToken': getCookie('csrftoken'),
   'Content-Type': 'appication/json',
 };
-let renderCount = 0;
 
 export default function Game({ match }) {
   const { id } = match.params;
   const [loading, setLoading] = useState(true);
-  const [{ width, height }, setGrid] = useState({ width: 0, height: 0 });
   const [status, setStatus] = useState('');
   const [squares, setSquares] = useState([]);
 
@@ -83,17 +83,28 @@ export default function Game({ match }) {
 
   return (
     <div>
-      <p>{++renderCount}</p>
       <h1>{loading && 'loading...'}</h1>
       {loading || (
         <Fragment>
-          <h1>{status}</h1>
+          {status !== 'O' && (
+            <h1>
+              You
+              {status === 'W' ? ' win!' : ' lose!'}
+              <small>
+                {' '}
+                <Link to="/">
+                  Play again?
+                </Link>
+              </small>
+            </h1>
+          )}
           <div>
             {squares.map(row => (
               row.map(square => (
                 <Square
                   key={square.id}
                   square={square}
+                  disabled={status === 'L' || status === 'W'}
                   onClick={() => reveal(square.id)}
                   onContextMenu={(e) => {
                     e.preventDefault();
