@@ -39,7 +39,27 @@ export default function Game({ match }) {
 
     const { result, data } = await response.json();
 
-    // handle success/fail
+    if (result === 'success') {
+      const { revealed, game_status } = data;
+      // reveal all squares
+      setSquares((sqs) => {
+        const newSquares = Array.from(sqs);
+        revealed.forEach(({ x, y, adjacent_mines }) => {
+          newSquares[y][x].adjacent_mines = adjacent_mines;
+          newSquares[y][x].is_revealed = true;
+        });
+        return newSquares;
+      });
+      // FIXME: check data.game_status for 'W'
+    } else {
+      const { x, y } = data;
+      setStatus('L');
+      setSquares((sqs) => {
+        const newSquares = Array.from(sqs);
+        newSquares[y][x] = data;
+        return newSquares;
+      });
+    }
   }
 
   async function flag(squareId, square) {
