@@ -34,9 +34,10 @@ class Grid(models.Model):
         Get the fields that should be sent to the client
         """
         return {
+            'id': self.id,
             'width': self.width,
             'height': self.height,
-            'squares': [s.public_data() for s in self.square_set],
+            'squares': [s.public_data() for s in self.square_set.all()],
         }
 
 class Square(models.Model):
@@ -46,6 +47,8 @@ class Square(models.Model):
     x = models.PositiveIntegerField()
     y = models.PositiveIntegerField()
     has_mine = models.BooleanField()
+    has_flag = models.BooleanField(default=False)
+    is_revealed = models.BooleanField(default=False)
 
     grid = models.ForeignKey(Grid, on_delete=models.CASCADE)
 
@@ -53,10 +56,19 @@ class Square(models.Model):
         """
         Get the fields that should be sent to the client
         """
-        return {
+        data = {
+            'id': self.id,
             'x': self.x,
             'y': self.y,
+            'is_revealed': self.is_revealed,
         }
+
+        # add adjacent_mines/has_flag only if relevant
+        if self.is_revealed:
+            data['adjacent_mines'] = self.adjacent_mines()
+        else:
+            data['has_flag'] = self.has_flag
+        return data
 
 class Game(models.Model):
     """
@@ -78,6 +90,7 @@ class Game(models.Model):
         Get the fields that should be sent to the client
         """
         return {
+            'id': self.id,
             'status': self.status,
             'difficulty': self.difficulty,
             'grid': self.grid.public_data(),
