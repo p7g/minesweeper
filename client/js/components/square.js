@@ -8,10 +8,12 @@ export default ({
     is_revealed,
     adjacent_mines,
   },
+  disabled,
   onClick,
   onContextMenu,
 }) => (
   <button
+    disabled={disabled}
     type="button"
     className={`
       nes-btn
