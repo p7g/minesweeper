@@ -16,3 +16,24 @@ export function getCookie(name) { // eslint-disable-line import/prefer-default-e
   }
   return cookies[name];
 }
+
+/**
+ * Convert a 1D array of squares into a 2D grid
+ *
+ * @param {Object[]} squares A 1D array of square objects
+ * @param {number} width The width of the board
+ * @param {number} height The height of the board
+ * @returns {Object[][]}
+ */
+export function to2D(squares, width, height) {
+  const grid = Array.from({ length: height })
+    .fill(Array.from({ length: width }));
+
+  squares.forEach((square) => {
+    const { x, y } = square;
+
+    grid[y][x] = square;
+  });
+
+  return grid;
+}

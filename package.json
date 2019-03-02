@@ -5,7 +5,7 @@
   "main": "index.js",
   "browserslist": "since 2017-06",
   "scripts": {
-    "dev": "parcel client/js/index.js --out-dir client/static/client",
+    "dev": "parcel client/js/index.js --out-dir client/static --public-url /static/",
     "build": "parcel build client/js/index.js --out-dir client/static/client",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

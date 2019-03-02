@@ -89,7 +89,7 @@ class SquareRevealView(View):
     Class for views on /api/squares/<id>/reveal
     """
 
-    def post(self, request, square_id):
+    def post(self, request, square_id): # FIXME: keep track of seen squares to avoid infinite recursion
         """
         Reveal a square. Returns a result object, which is either success with
         the revealed squares and game status, or failure (from a mine)
