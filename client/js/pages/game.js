@@ -50,7 +50,8 @@ export default function Game({ match }) {
         });
         return newSquares;
       });
-      // FIXME: check data.game_status for 'W'
+
+      setStatus(game_status);
     } else {
       const { x, y } = data;
       setStatus('L');
