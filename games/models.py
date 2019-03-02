@@ -3,8 +3,7 @@ Models needed for a game of minesweeper
 """
 
 from django.db import models
-
-# Create your models here.
+from django.db.models import Q
 
 class Grid(models.Model):
     """
