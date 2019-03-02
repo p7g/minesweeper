@@ -13,13 +13,18 @@ export default ({
 }) => (
   <button
     type="button"
-    className="nes-btn"
+    className={`
+      nes-btn
+      ${has_mine ? 'is-error' : ''}
+      ${is_revealed && !has_mine ? 'is-primary' : ''}
+      ${has_flag && !is_revealed ? 'is-warning' : ''}
+    `}
     onClick={onClick}
     onContextMenu={onContextMenu}
   >
-    {(is_revealed && adjacent_mines) || (
-      has_flag && (console.log('f'), 'f')
-    )}
+    {(is_revealed && ((has_mine && 'M') || `${adjacent_mines}`)) || (
+      has_flag && 'F'
+    ) || 'H'}
   </button>
 );
 /* eslint-enable camelcase, react/prop-types */
