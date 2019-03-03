@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { getCookie } from '../utilities';
+import { getCookie, retry, request } from '../utilities';
 
 const Button = styled.button`
   width: 100%;
@@ -36,14 +36,14 @@ export default function NewGame({ history }) { // eslint-disable-line react/prop
     setLoading(name);
 
     const token = getCookie('csrftoken');
-    const response = await fetch('/api/games', {
+    const response = await retry(() => request('/api/games', {
       method: 'POST',
       body: JSON.stringify({ difficulty }),
       headers: {
         'X-CSRFToken': token,
         'Content-Type': 'application/json',
       },
-    });
+    }));
 
     const { id } = await response.json();
     setLoading('');
