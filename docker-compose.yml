@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  minesweeper:
+    image: p7g/minesweeper
+    build: .
+    networks:
+      - traefik
+    volumes:
+      - ./data:/app/data
+    labels:
+      traefik.enable: true
+      traefik.port: 8000
+      traefik.docker.network: traefik
+      traefik.frontend.rule: Host:1px.dev
+
+networks:
+  traefik:
+    external: true
