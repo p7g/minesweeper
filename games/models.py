@@ -3,7 +3,6 @@ Models needed for a game of minesweeper
 """
 
 from django.db import models
-from django.db.models import Q
 
 class Grid(models.Model):
     """
@@ -11,23 +10,6 @@ class Grid(models.Model):
     """
     width = models.PositiveIntegerField(default=20)
     height = models.PositiveIntegerField(default=20)
-
-    def get_squares_adjacent_to(self, square, **kwargs):
-        """
-        Get all squares adjacent to the one given
-        """
-        return self.square_set.filter(
-            (Q( # horizontally adjacent
-                x__in=(square.x+1, square.x-1),
-                y=square.y,
-            ) | Q( # vertically adjacent
-                y__in=(square.y+1, square.y-1),
-                x=square.x,
-            ) | Q( # diagonally adjacent
-                x__in=(square.x+1, square.x-1),
-                y__in=(square.y+1, square.y-1),
-            )) & Q(**kwargs)
-        )
 
     def get_all_2d(self):
         """
@@ -94,6 +76,7 @@ class Square(models.Model):
             data['adjacent_mines'] = self.adjacent_mines
         else:
             data['has_flag'] = self.has_flag
+
         return data
 
 class Game(models.Model):
