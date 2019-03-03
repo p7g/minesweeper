@@ -24,7 +24,7 @@ COPY ./Pipfile ./Pipfile
 COPY ./Pipfile.lock ./Pipfile.lock
 RUN pipenv install --system --deploy
 COPY . .
-COPY --from=jsbuild /app/client/static /app/client
+COPY --from=jsbuild /app/client/static /app/client/static
 
 RUN python manage.py collectstatic
 
