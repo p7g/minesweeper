@@ -11,8 +11,8 @@ const Button = styled.button`
 // Preset difficulty levels
 const Difficulty = {
   EASY: 0.6,
-  MEDIUM: 0.8,
-  HARD: 1,
+  MEDIUM: 0.65,
+  HARD: 0.7,
 };
 
 /**

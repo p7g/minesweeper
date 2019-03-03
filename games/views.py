@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 
 from .models import Game, Grid, Square
 
-DEFAULT_SIZE = 20
+DEFAULT_SIZE = 15
 
 def new_game(difficulty):
     """
