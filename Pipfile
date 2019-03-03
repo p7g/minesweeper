@@ -5,11 +5,12 @@ verify_ssl = true
 
 [dev-packages]
 pylint = "*"
+pylint-django = "*"
 
 [packages]
 django = "*"
-pylint-django = "*"
 python-dotenv = "*"
+gunicorn = "*"
 
 [requires]
 python_version = "3.7"
