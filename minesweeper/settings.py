@@ -28,10 +28,12 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
+_environment = os.getenv('DJANGO_ENVIRONMENT', default='development')
+DEBUG = _environment == 'development'
 
-ALLOWED_HOSTS = ['1px.dev']
-
+ALLOWED_HOSTS = []
+if _environment != 'development':
+    ALLOWED_HOSTS.append('1px.dev')
 
 # Application definition
 
