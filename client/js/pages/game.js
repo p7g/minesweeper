@@ -3,7 +3,12 @@ import React, { useState, useEffect, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 
 import Square from '../components/square';
-import { to2D, getCookie, retry } from '../utilities';
+import {
+  to2D,
+  getCookie,
+  retry,
+  request,
+} from '../utilities';
 
 // headers needed to make a post request with a JSON payload
 const csrfJsonHeaders = {
@@ -31,7 +36,7 @@ export default function Game({ match }) { // eslint-disable-line react/prop-type
   async function getGame(gameId) {
     setLoading(true);
 
-    const response = await retry(() => fetch(`/api/games/${gameId}`));
+    const response = await retry(() => request(`/api/games/${gameId}`));
 
     const {
       status: gameStatus,
@@ -58,7 +63,7 @@ export default function Game({ match }) { // eslint-disable-line react/prop-type
    * @returns {Promise} A promise of nothing
    */
   async function reveal(squareId) {
-    const response = await retry(() => fetch(
+    const response = await retry(() => request(
       `/api/squares/${squareId}/reveal`, {
         method: 'POST',
         headers: csrfJsonHeaders,
@@ -113,7 +118,7 @@ export default function Game({ match }) { // eslint-disable-line react/prop-type
   async function flag(squareId, square) {
     const { x, y, has_flag } = square;
 
-    const response = await retry(() => fetch(
+    const response = await retry(() => request(
       `/api/squares/${squareId}/flag`, {
         method: has_flag ? 'DELETE' : 'POST',
         headers: csrfJsonHeaders,

@@ -140,6 +140,22 @@ export function getSquareClass({
 /* eslint-enable camelcase */
 
 /**
+ * fetch wrapper that fails on non-ok requests
+ *
+ * @param {string} url
+ * @param {Object} [options]
+ * @return {Promise}
+ */
+export async function request(url, options = {}) {
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
+
+  return response;
+}
+
+/**
  * Retry a function with exponential backoff
  *
  * @param {Function} fn The function to retry on failure
