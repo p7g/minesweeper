@@ -4,6 +4,7 @@ services:
   minesweeper:
     image: p7g/minesweeper
     build: .
+    container_name: minesweeper
     networks:
       - traefik
     volumes:
