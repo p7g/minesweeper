@@ -29,4 +29,6 @@ COPY --from=jsbuild /app/client/static /app/client
 RUN python manage.py collectstatic
 
 EXPOSE 8000
+
+ENV GUNICORN_CMD_ARGS "--bind=0.0.0.0:8000"
 CMD ["gunicorn", "minesweeper.wsgi"]
