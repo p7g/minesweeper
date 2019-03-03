@@ -1,3 +1,16 @@
+FROM node:alpine AS jsbuild
+
+WORKDIR /app
+COPY ./package.json ./package.json
+COPY ./package-lock.json ./package-lock.json
+
+RUN npm install
+
+COPY ./client .
+
+RUN npm run build
+
+
 FROM python:3.7-alpine
 
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -10,9 +23,10 @@ RUN pip install pipenv
 COPY ./Pipfile ./Pipfile
 COPY ./Pipfile.lock ./Pipfile.lock
 RUN pipenv install --system --deploy
-RUN python manage.py collectstatic
-
 COPY . .
+COPY --from=jsbuild /app/client/static /app/client
+
+RUN python manage.py collectstatic
 
 EXPOSE 8000
 CMD ["gunicorn", "minesweeper.wsgi"]
