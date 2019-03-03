@@ -138,3 +138,27 @@ export function getSquareClass({
   `;
 }
 /* eslint-enable camelcase */
+
+/**
+ * Retry a function with exponential backoff
+ *
+ * @param {Function} fn The function to retry on failure
+ * @param {number} [delay=250] The number of milliseconds of delay the first time
+ * @param {number} [attempts=3] The number of times to retry
+ * @returns {Promise}
+ */
+export async function retry(fn, delay = 250, attempts = 3) {
+  try {
+    return await fn();
+  } catch (error) {
+    if (attempts === 0) {
+      throw error;
+    }
+    return new Promise((resolve, reject) => setTimeout(
+      () => retry(fn, delay * 2, attempts - 1)
+        .then(resolve)
+        .catch(reject),
+      delay,
+    ));
+  }
+}

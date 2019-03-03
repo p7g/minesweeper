@@ -3,7 +3,7 @@ import React, { useState, useEffect, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 
 import Square from '../components/square';
-import { to2D, getCookie } from '../utilities';
+import { to2D, getCookie, retry } from '../utilities';
 
 // headers needed to make a post request with a JSON payload
 const csrfJsonHeaders = {
@@ -31,8 +31,8 @@ export default function Game({ match }) { // eslint-disable-line react/prop-type
   async function getGame(gameId) {
     setLoading(true);
 
-    const response = await fetch(`/api/games/${gameId}`);
-    // FIXME: error handling
+    const response = await retry(() => fetch(`/api/games/${gameId}`));
+
     const {
       status: gameStatus,
       grid: {
@@ -58,11 +58,12 @@ export default function Game({ match }) { // eslint-disable-line react/prop-type
    * @returns {Promise} A promise of nothing
    */
   async function reveal(squareId) {
-    const response = await fetch(`/api/squares/${squareId}/reveal`, {
-      method: 'POST',
-      headers: csrfJsonHeaders,
-    });
-    // FIXME: error handling
+    const response = await retry(() => fetch(
+      `/api/squares/${squareId}/reveal`, {
+        method: 'POST',
+        headers: csrfJsonHeaders,
+      },
+    ));
 
     const { result, data } = await response.json();
 
@@ -112,11 +113,13 @@ export default function Game({ match }) { // eslint-disable-line react/prop-type
   async function flag(squareId, square) {
     const { x, y, has_flag } = square;
 
-    const response = await fetch(`/api/squares/${squareId}/flag`, {
-      method: has_flag ? 'DELETE' : 'POST',
-      headers: csrfJsonHeaders,
-    });
-    // FIXME: error handling
+    const response = await retry(() => fetch(
+      `/api/squares/${squareId}/flag`, {
+        method: has_flag ? 'DELETE' : 'POST',
+        headers: csrfJsonHeaders,
+      },
+    ));
+
     const { mine_count } = await response.json();
 
     setMineCount(mine_count);
