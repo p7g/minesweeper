@@ -13,4 +13,5 @@ RUN pipenv install --system --deploy
 
 COPY . .
 
+EXPOSE 8000
 CMD ["gunicorn", "minesweeper.wsgi"]
