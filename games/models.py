@@ -71,7 +71,7 @@ class Grid(models.Model):
         """
         num_mines = self.square_set.filter(has_mine=True).count()
         num_flags = self.square_set.filter(has_flag=True).count()
-        return num_mines - num_flags
+        return max(num_mines - num_flags, 0)
 
     def public_data(self):
         """
