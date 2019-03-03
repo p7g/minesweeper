@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 
 const severity = {
   1: 'blue',
@@ -11,6 +12,16 @@ const severity = {
   8: 'gray',
 };
 
+const Button = styled.button`
+  position: relative;
+
+  ::before {
+    content: '';
+    display: block;
+    padding-top: 100%;
+  }
+`;
+
 /* eslint-disable camelcase, react/prop-types */
 export default ({
   square: {
@@ -19,12 +30,15 @@ export default ({
     is_revealed,
     adjacent_mines,
   },
+  style,
   disabled,
   onClick,
   onContextMenu,
 }) => {
   let contents = '\u00A0';
-  let extraStyles = {};
+  let extraStyles = {
+    width: '100%',
+  };
 
   if (is_revealed) {
     if (has_mine) {
@@ -43,23 +57,37 @@ export default ({
     contents = 'F';
   }
 
+  const buttonClass = `
+    nes-btn \
+    ${has_mine ? 'is-error' : ''} \
+    ${is_revealed && !has_mine ? 'is-disabled' : ''} \
+    ${has_flag && !is_revealed ? 'is-warning' : ''} \
+  `;
+
   return (
-    <button
+    <Button
       disabled={disabled}
       type="button"
-      className={`
-        nes-btn
-        ${has_mine ? 'is-error' : ''}
-        ${is_revealed && !has_mine ? 'is-disabled' : ''}
-        ${has_flag && !is_revealed ? 'is-warning' : ''}
-      `}
-      style={extraStyles}
+      className={buttonClass}
+      style={{
+        ...extraStyles,
+        ...style,
+      }}
       active={is_revealed}
       onClick={onClick}
       onContextMenu={onContextMenu}
     >
-      {contents}
-    </button>
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+      }}
+      >
+        {contents}
+      </div>
+    </Button>
   );
 };
 /* eslint-enable camelcase, react/prop-types */

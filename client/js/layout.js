@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 const Container = styled.div`
   font-family: 'Press Start 2P';
-  width: 50%;
+  width: 75%;
   margin: 0 auto;
 `;
 
