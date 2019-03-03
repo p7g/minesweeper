@@ -27,6 +27,7 @@ COPY . .
 COPY --from=jsbuild /app/client/static /app/client/static
 
 RUN python manage.py collectstatic
+RUN python manage.py migrate
 
 EXPOSE 8000
 
