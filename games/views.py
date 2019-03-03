@@ -120,7 +120,13 @@ class SquareRevealView(View):
             # end game
             square.grid.game.status = 'L'
             square.grid.game.save()
-            data = square.public_data()
+
+            mines = square.grid.square_set.filter(has_mine=True)
+            mines.update(is_revealed=True)
+            data = {
+                'square': square.public_data(),
+                'mines': [mine.public_data() for mine in mines],
+            }
         else:
             result = 'success'
             grid = square.grid.get_all_2d()

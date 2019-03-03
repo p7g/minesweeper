@@ -75,11 +75,16 @@ export default function Game({ match }) { // eslint-disable-line react/prop-type
 
       setStatus(game_status);
     } else {
-      const { x, y } = data;
+      const { square: { x, y }, mines } = data;
       setStatus('L');
       setSquares((sqs) => {
         const newSquares = Array.from(sqs);
         newSquares[y][x] = data;
+
+        mines.forEach((mine) => {
+          newSquares[mine.y][mine.x].is_revealed = true;
+          newSquares[mine.y][mine.x].has_mine = true;
+        });
         return newSquares;
       });
     }
