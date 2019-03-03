@@ -36,3 +36,105 @@ export function to2D(squares, width, height) {
 
   return grid;
 }
+
+const severity = {
+  1: 'blue',
+  2: 'green',
+  3: 'red',
+  4: 'purple',
+  5: 'maroon',
+  6: 'turquoise',
+  7: 'black',
+  8: 'gray',
+};
+
+/* eslint-disable camelcase */
+
+/**
+ * Get the character to display in the square based on its properties
+ *
+ * @param {Object} square
+ * @param {boolean} [square.is_revealed]
+ * @param {boolean} [square.is_incorrect]
+ * @param {boolean} [square.has_flag]
+ * @param {boolean} [square.has_mine]
+ * @param {number} [square.adjacent_mines]
+ * @returns {string}
+ */
+export function getSquareContents({
+  is_revealed,
+  is_incorrect,
+  has_flag,
+  has_mine,
+  adjacent_mines,
+}) {
+  let contents = '\u00A0';
+
+  if (is_revealed) {
+    if (has_mine) {
+      // if the square is visible and has a mine, show an 'M'
+      contents = 'M';
+    } else if (adjacent_mines > 0) {
+      // otherwise show how many mines are adjacent
+      contents = adjacent_mines;
+    }
+  } else if (has_flag) {
+    // if the mine has a flag, show an 'F' or an 'X' if it's incorrect
+    // is_incorrect is only set when the game is over
+    if (is_incorrect) {
+      contents = 'X';
+    } else {
+      contents = 'F';
+    }
+  }
+  return contents;
+}
+
+/**
+ * Get the character to display in the square based on its properties
+ *
+ * @param {Object} square
+ * @param {boolean} [square.is_revealed]
+ * @param {boolean} [square.has_mine]
+ * @param {number} [square.adjacent_mines]
+ * @returns {string}
+ */
+export function getSquareStyles({
+  is_revealed,
+  has_mine,
+  adjacent_mines,
+}) {
+  // when the square has been revealed and doesn't have a mine, make it
+  // look like it has been pressed, and remove the pointer cursor
+  if (is_revealed && !has_mine) {
+    return {
+      color: severity[adjacent_mines],
+      opacity: '1',
+      cursor: 'inherit',
+    };
+  }
+  return {};
+}
+
+/**
+ * Get the class for the square based on its properties
+ *
+ * @param {Object} square
+ * @param {boolean} [square.is_revealed]
+ * @param {boolean} [square.has_flag]
+ * @param {boolean} [square.has_mine]
+ * @returns {string}
+ */
+export function getSquareClass({
+  is_revealed,
+  has_flag,
+  has_mine,
+}) {
+  return `
+    nes-btn \
+    ${has_mine ? 'is-error' : ''} \
+    ${is_revealed && !has_mine ? 'is-disabled' : ''} \
+    ${has_flag && !is_revealed ? 'is-warning' : ''} \
+  `;
+}
+/* eslint-enable camelcase */

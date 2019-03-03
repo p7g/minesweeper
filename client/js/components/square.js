@@ -1,16 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const severity = {
-  1: 'blue',
-  2: 'green',
-  3: 'red',
-  4: 'purple',
-  5: 'maroon',
-  6: 'turquoise',
-  7: 'black',
-  8: 'gray',
-};
+import { getSquareContents, getSquareClass, getSquareStyles } from '../utilities';
 
 const Button = styled.button`
   position: relative;
@@ -22,45 +13,18 @@ const Button = styled.button`
   }
 `;
 
-/* eslint-disable camelcase, react/prop-types */
 export default ({
-  square: {
-    has_mine,
-    has_flag,
-    is_revealed,
-    adjacent_mines,
-  },
+  /* eslint-disable react/prop-types */
+  square,
   style,
   disabled,
   onClick,
   onContextMenu,
+  /* eslint-enable react/prop-types */
 }) => {
-  let contents = '\u00A0';
-  let extraStyles = {};
-
-  if (is_revealed) {
-    if (has_mine) {
-      contents = 'M';
-    } else {
-      extraStyles = {
-        color: severity[adjacent_mines],
-        opacity: '1',
-        cursor: 'inherit',
-      };
-      if (adjacent_mines > 0) {
-        contents = adjacent_mines;
-      }
-    }
-  } else if (has_flag) {
-    contents = 'F';
-  }
-
-  const buttonClass = `
-    nes-btn \
-    ${has_mine ? 'is-error' : ''} \
-    ${is_revealed && !has_mine ? 'is-disabled' : ''} \
-    ${has_flag && !is_revealed ? 'is-warning' : ''} \
-  `;
+  const contents = getSquareContents(square);
+  const buttonClass = getSquareClass(square);
+  const extraStyles = getSquareStyles(square);
 
   return (
     <Button
@@ -71,7 +35,7 @@ export default ({
         ...extraStyles,
         ...style,
       }}
-      active={is_revealed}
+      active={square.is_revealed}
       onClick={onClick}
       onContextMenu={onContextMenu}
     >
@@ -89,4 +53,3 @@ export default ({
     </Button>
   );
 };
-/* eslint-enable camelcase, react/prop-types */
