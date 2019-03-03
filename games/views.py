@@ -4,7 +4,7 @@ Views relating to the game
 import json
 
 from django.views import View
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 from .models import Game, Grid, Square
@@ -13,7 +13,6 @@ from .utilities import (
     init_2d_list,
     matrix_adjacent_iter,
     matrix_iter,
-    matrix_view,
 )
 
 DEFAULT_SIZE = 15
@@ -91,7 +90,9 @@ class SquareFlagView(View):
         square = get_object_or_404(Square, pk=square_id)
         square.has_flag = True
         square.save()
-        return HttpResponse()
+        return JsonResponse({
+            'mine_count': square.grid.mine_count(),
+        })
 
     def delete(self, request, square_id):
         """
@@ -100,7 +101,9 @@ class SquareFlagView(View):
         square = get_object_or_404(Square, pk=square_id)
         square.has_flag = False
         square.save()
-        return HttpResponse()
+        return JsonResponse({
+            'mine_count': square.grid.mine_count(),
+        })
 
 class SquareRevealView(View):
     """
@@ -173,6 +176,7 @@ class SquareRevealView(View):
             data = {
                 'revealed': revealed,
                 'game_status': square.grid.game.status,
+                'mine_count': square.grid.mine_count(),
             }
 
         return JsonResponse({

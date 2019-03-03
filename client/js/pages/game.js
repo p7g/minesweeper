@@ -19,6 +19,7 @@ export default function Game({ match }) { // eslint-disable-line react/prop-type
   const [loading, setLoading] = useState(true);
   // eslint-disable-next-line no-unused-vars
   const [{ width, height }, setGrid] = useState({});
+  const [mineCount, setMineCount] = useState(0);
   const [status, setStatus] = useState('');
   const [squares, setSquares] = useState([]);
 
@@ -35,11 +36,16 @@ export default function Game({ match }) { // eslint-disable-line react/prop-type
     // FIXME: error handling
     const {
       status: gameStatus,
-      grid: { squares: gridSquares, ...dimensions },
+      grid: {
+        squares: gridSquares,
+        mine_count,
+        ...dimensions
+      },
     } = await response.json();
 
     setSquares(to2D(gridSquares, dimensions.width, dimensions.height));
     setGrid(dimensions);
+    setMineCount(mine_count);
 
     setStatus(gameStatus);
     setLoading(false);
@@ -62,7 +68,7 @@ export default function Game({ match }) { // eslint-disable-line react/prop-type
     const { result, data } = await response.json();
 
     if (result === 'success') {
-      const { revealed, game_status } = data;
+      const { revealed, game_status, mine_count } = data;
       // reveal all squares
       setSquares((sqs) => {
         const newSquares = Array.from(sqs);
@@ -73,6 +79,7 @@ export default function Game({ match }) { // eslint-disable-line react/prop-type
         return newSquares;
       });
 
+      setMineCount(mine_count);
       setStatus(game_status);
     } else {
       const { square: { x, y }, mines } = data;
@@ -108,7 +115,9 @@ export default function Game({ match }) { // eslint-disable-line react/prop-type
       headers: csrfJsonHeaders,
     });
     // FIXME: error handling
+    const { mine_count } = await response.json();
 
+    setMineCount(mine_count);
     setSquares((sqs) => {
       const newSquares = Array.from(sqs);
       newSquares[y][x].has_flag = !has_flag;
@@ -124,22 +133,35 @@ export default function Game({ match }) { // eslint-disable-line react/prop-type
 
   return (
     <div>
-      <h1>{loading && 'loading...'}</h1>
+      <h1>
+        {(loading && 'loading...') || (
+          <Fragment>
+            {status !== 'O' && (
+              <Fragment>
+                You
+                {status === 'W' ? ' win!' : ' lose!'}
+                <small>
+                  {' '}
+                  <Link to="/">
+                    Play again?
+                  </Link>
+                </small>
+              </Fragment>
+            )}
+            <small
+              style={{
+                float: 'right',
+              }}
+            >
+              {mineCount}
+            </small>
+          </Fragment>
+        )}
+      </h1>
       {loading || (
         <Fragment>
-          {status !== 'O' && (
-            <h1>
-              You
-              {status === 'W' ? ' win!' : ' lose!'}
-              <small>
-                {' '}
-                <Link to="/">
-                  Play again?
-                </Link>
-              </small>
-            </h1>
-          )}
           <div style={{
+            clear: 'both',
             display: 'grid',
             gridTemplateColumns: `repeat(${width}, 1fr)`,
             gridGap: '0',

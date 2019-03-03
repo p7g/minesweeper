@@ -41,6 +41,14 @@ class Grid(models.Model):
             grid[y][x] = square
         return grid
 
+    def mine_count(self):
+        """
+        Get the apparent number of mines still on the playing field
+        """
+        num_mines = self.square_set.filter(has_mine=True).count()
+        num_flags = self.square_set.filter(has_flag=True).count()
+        return num_mines - num_flags
+
     def public_data(self):
         """
         Get the fields that should be sent to the client
@@ -50,6 +58,7 @@ class Grid(models.Model):
             'width': self.width,
             'height': self.height,
             'squares': [s.public_data() for s in self.square_set.all()],
+            'mine_count': self.mine_count(),
         }
 
 class Square(models.Model):
