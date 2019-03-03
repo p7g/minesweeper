@@ -30,6 +30,9 @@ class Grid(models.Model):
         )
 
     def get_all_2d(self):
+        """
+        Get all square in the grid as a 2D array
+        """
         squares = self.square_set.all()
         grid = [[None for x in range(self.width)] for y in range(self.height)]
         for square in squares:
@@ -98,6 +101,13 @@ class Game(models.Model):
     status = models.CharField(max_length=1, choices=STATUSES)
     difficulty = models.FloatField(help_text='Chance of each square to be a mine')
     grid = models.OneToOneField(Grid, on_delete=models.CASCADE)
+
+    def update_status(self, new_status):
+        """
+        Change the status to the given value and save it
+        """
+        self.status = new_status
+        self.save()
 
     def public_data(self):
         """

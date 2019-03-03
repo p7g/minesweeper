@@ -2,13 +2,19 @@
 Views relating to the game
 """
 import json
-import random
 
 from django.views import View
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 
 from .models import Game, Grid, Square
+from .utilities import (
+    chance,
+    init_2d_list,
+    matrix_adjacent_iter,
+    matrix_iter,
+    matrix_view,
+)
 
 DEFAULT_SIZE = 15
 
@@ -18,36 +24,34 @@ def new_game(difficulty):
     """
     grid = Grid.objects.create(width=DEFAULT_SIZE, height=DEFAULT_SIZE)
 
-    squares = [[None for x in range(grid.width)] for y in range(grid.height)]
-    # generate a square for every index in the grid
-    for y in range(grid.height):
-        for x in range(grid.width):
-            # Chance of each square being a mine is based on difficulty
-            has_mine = bool(round(random.random() * difficulty))
-            squares[y][x] = Square(
-                x=x,
-                y=y,
-                has_mine=has_mine,
-                grid=grid,
-            )
+    # make a grid of squares with random mines
+    squares = init_2d_list(
+        width=grid.width,
+        height=grid.height,
+        initializer=lambda x, y: Square(
+            x=x,
+            y=y,
+            has_mine=chance(difficulty),
+            grid=grid,
+        ),
+    )
 
-    for row in squares:
-        for square in row: # sum the mines in each direction
-            x = square.x
-            y = square.y
-            total = 0
-            for adjacent_row in squares[max(y-1, 0):min(y+2, grid.height)]:
-                for adjacent_square in adjacent_row[max(x-1, 0):min(x+2, grid.width)]:
-                    if adjacent_square == square:
-                        continue
-                    if adjacent_square.has_mine:
-                        total += 1
-            square.adjacent_mines = total
+    for square in matrix_iter(squares): # sum the mines in each direction
+        x = square.x
+        y = square.y
+        total = 0
 
+        for adjacent_square in matrix_adjacent_iter(squares, x, y):
+            if adjacent_square == square:
+                continue
+            if adjacent_square.has_mine:
+                total += 1
+        square.adjacent_mines = total
+
+    # flatten grid of squares into bulk create
     grid.square_set.bulk_create(square for row in squares for square in row)
 
-    game = Game.objects.create(difficulty=difficulty, status='O', grid=grid)
-    return game
+    return Game.objects.create(difficulty=difficulty, status='O', grid=grid)
 
 # Create your views here.
 class GameIndexView(View):
@@ -114,12 +118,12 @@ class SquareRevealView(View):
         data = None
         square.is_revealed = True
         square.save()
+
         if square.has_mine:
             result = 'fail'
 
-            # end game
-            square.grid.game.status = 'L'
-            square.grid.game.save()
+            # end the game
+            square.grid.game.update_status('L')
 
             mines = square.grid.square_set.filter(has_mine=True)
             mines.update(is_revealed=True)
@@ -130,14 +134,15 @@ class SquareRevealView(View):
         else:
             result = 'success'
             grid = square.grid.get_all_2d()
-            revealed = [square.public_data()]
-            to_reveal = []
-            squares = [square]
-            seen_squares = []
+            revealed = [square.public_data()] # store public data for sending to client
+            to_reveal = [] # store IDs of squares to reveal in bulk at the end
+            seen_squares = [] # maintain list of seen squares to prevent infinite recursion
 
-            while squares:
+            # maintain a queue of blocks to avoid actual recursion
+            queue = [square]
+            while queue:
                 # get the next square from the list
-                current = squares.pop()
+                current = queue.pop()
 
                 if current.adjacent_mines != 0:
                     continue
@@ -146,26 +151,24 @@ class SquareRevealView(View):
                 # reveal if there is no mine, and recurse if no adjacent mines
                 y = current.y
                 x = current.x
-                for adjacent_row in grid[max(y-1, 0):min(y+2, square.grid.height)]:
-                    for adjacent_square in adjacent_row[max(x-1, 0):min(x+2, square.grid.width)]:
-                        seen = adjacent_square in seen_squares
-                        if not adjacent_square.has_mine and not seen:
-                            adjacent_square.is_revealed = True
-                            revealed.append(adjacent_square.public_data())
-                            to_reveal.append(adjacent_square.id)
+                for adjacent_square in matrix_adjacent_iter(grid, x, y):
+                    seen = adjacent_square in seen_squares
+                    if not adjacent_square.has_mine and not seen:
+                        adjacent_square.is_revealed = True
+                        revealed.append(adjacent_square.public_data())
+                        to_reveal.append(adjacent_square.id)
 
-                        if adjacent_square.adjacent_mines == 0:
-                            if not seen:
-                                seen_squares.append(adjacent_square)
-                                squares.append(adjacent_square)
+                    if adjacent_square.adjacent_mines == 0:
+                        if not seen:
+                            seen_squares.append(adjacent_square)
+                            queue.append(adjacent_square)
 
             # modify the database in one query
             Square.objects.filter(pk__in=to_reveal).update(is_revealed=True)
 
             # check if game is won (no unrevealed squares without mine)
             if not square.grid.square_set.filter(has_mine=False, is_revealed=False).exists():
-                square.grid.game.status = 'W'
-                square.grid.game.save()
+                square.grid.game.update_status('W')
 
             data = {
                 'revealed': revealed,
