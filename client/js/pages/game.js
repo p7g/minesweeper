@@ -14,9 +14,10 @@ const csrfJsonHeaders = {
 /**
  * The Game component, which generates the board and handles input
  */
-export default function Game({ match }) {
+export default function Game({ match }) { // eslint-disable-line react/prop-types
   const { id } = match.params;
   const [loading, setLoading] = useState(true);
+  // eslint-disable-next-line no-unused-vars
   const [{ width, height }, setGrid] = useState({});
   const [status, setStatus] = useState('');
   const [squares, setSquares] = useState([]);

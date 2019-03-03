@@ -18,7 +18,7 @@ const Difficulty = {
 /**
  * A page that allows the user to start a new game
  */
-export default function NewGame({ history }) {
+export default function NewGame({ history }) { // eslint-disable-line react/prop-types
   const [loading, setLoading] = useState('');
 
   /**
