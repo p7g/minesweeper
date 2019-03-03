@@ -17,8 +17,7 @@ const csrfJsonHeaders = {
 export default function Game({ match }) { // eslint-disable-line react/prop-types
   const { id } = match.params;
   const [loading, setLoading] = useState(true);
-  // eslint-disable-next-line no-unused-vars
-  const [{ width, height }, setGrid] = useState({});
+  const [{ width }, setGrid] = useState({});
   const [mineCount, setMineCount] = useState(0);
   const [status, setStatus] = useState('');
   const [squares, setSquares] = useState([]);
@@ -82,15 +81,18 @@ export default function Game({ match }) { // eslint-disable-line react/prop-type
       setMineCount(mine_count);
       setStatus(game_status);
     } else {
-      const { square: { x, y }, mines } = data;
+      const { unflagged_mines, incorrect_flags } = data;
       setStatus('L');
       setSquares((sqs) => {
         const newSquares = Array.from(sqs);
-        newSquares[y][x] = data;
 
-        mines.forEach((mine) => {
+        unflagged_mines.forEach((mine) => {
           newSquares[mine.y][mine.x].is_revealed = true;
           newSquares[mine.y][mine.x].has_mine = true;
+        });
+
+        incorrect_flags.forEach(({ x, y }) => {
+          newSquares[y][x].is_incorrect = true;
         });
         return newSquares;
       });
