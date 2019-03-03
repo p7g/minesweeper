@@ -15,6 +15,7 @@ const Container = styled.div`
   }
 `;
 
+// eslint-disable-next-line react/prop-types
 export default ({ children }) => (
   <Fragment>
     <header>
