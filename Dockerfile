@@ -6,7 +6,7 @@ COPY ./yarn.lock ./yarn.lock
 
 RUN npx yarn install
 
-COPY ./client .
+COPY ./client ./client
 
 RUN npm run build
 
