@@ -142,9 +142,6 @@ export default function Game({ match }) {
             {squares.map(row => (
               row.map(square => (
                 <Square
-                  style={{
-                    width: `calc(1 / ${width} * 100%)`,
-                  }}
                   key={square.id}
                   square={square}
                   disabled={status === 'L' || status === 'W'}

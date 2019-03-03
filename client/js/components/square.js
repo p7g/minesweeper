@@ -36,9 +36,7 @@ export default ({
   onContextMenu,
 }) => {
   let contents = '\u00A0';
-  let extraStyles = {
-    width: '100%',
-  };
+  let extraStyles = {};
 
   if (is_revealed) {
     if (has_mine) {
@@ -77,13 +75,14 @@ export default ({
       onClick={onClick}
       onContextMenu={onContextMenu}
     >
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-      }}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+        }}
       >
         {contents}
       </div>
