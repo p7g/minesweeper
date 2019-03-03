@@ -2,9 +2,9 @@ FROM node:alpine AS jsbuild
 
 WORKDIR /app
 COPY ./package.json ./package.json
-COPY ./package-lock.json ./package-lock.json
+COPY ./yarn.lock ./yarn.lock
 
-RUN npm install
+RUN npx yarn install
 
 COPY ./client .
 
