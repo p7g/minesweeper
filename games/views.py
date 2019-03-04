@@ -4,7 +4,7 @@ Views relating to the game
 import json
 
 from django.views import View
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 
 from .models import Game, Square
@@ -45,6 +45,11 @@ class SquareFlagView(View):
         Add a flag to the square
         """
         square = get_object_or_404(Square, pk=square_id)
+
+        # do not allow updates to completed game
+        if square.grid.game.status != 'O':
+            return HttpResponseForbidden()
+
         square.has_flag = True
         square.save()
         return JsonResponse({
@@ -56,6 +61,11 @@ class SquareFlagView(View):
         Remove the flag from a square
         """
         square = get_object_or_404(Square, pk=square_id)
+
+        # do not allow updates to completed game
+        if square.grid.game.status != 'O':
+            return HttpResponseForbidden()
+
         square.has_flag = False
         square.save()
         return JsonResponse({
@@ -75,6 +85,10 @@ class SquareRevealView(View):
         clicked_square = get_object_or_404(Square, pk=square_id)
         grid = clicked_square.grid
         game = grid.game
+
+        # do not allow updates to completed game
+        if game.status != 'O':
+            return HttpResponseForbidden()
 
         clicked_square.reveal()
 
